@@ -6,7 +6,7 @@ const organizationSchema = new mongoose.Schema({
         type: String,
         required: true,
         trim: true,
-        maxlength: 100
+        maxlength: 100,
     },
     email: {
         type: String,
@@ -18,7 +18,7 @@ const organizationSchema = new mongoose.Schema({
         type: String,
         default: 'https://res.cloudinary.com/devatchannel/image/upload/v1602752402/avatar/avatar_cugq40.png'
     },
-    role: {type: String, default: 'user'},
+    creator_user : { type: mongoose.Types.ObjectId, ref: 'user' }, // nullable //who first added it
     mobile: {type: String, default: ''}, // Telefon numarasý
     address: {type: String, default: ''},
     story: {
@@ -35,4 +35,4 @@ const organizationSchema = new mongoose.Schema({
 })
 
 
-module.exports = mongoose.model('user', organizationSchema)
+module.exports = mongoose.model('organization', organizationSchema)

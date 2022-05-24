@@ -1,62 +1,75 @@
 const Organizations = require('../models/organizationModel')
 
 const organizationCtrl = {
-    searchOrganization: async (req, res) => {
+    createOrganization: async (req, res) => {
         try {
-            const users = await Organizations.find({username: {$regex: req.query.username}})
-            .limit(10).select("fullname username avatar")
-            
-            res.json({users})
+            const { fullname, email, mobile, address, website, images } = req.body
+
+            const organization_name = await Organizations.findOne({ fullname: fullname })
+            if (organization_name) return res.status(400).json({ msg: "This organization name already exists." })
+
+
+            const newOrganization = new Organizations({
+                fullname: fullname, creator_user: req.user._id,
+                email: email, mobile: mobile, address: address,
+                website: website, avatar: images
+            })
+
+            await newOrganization.save()
+
+            res.json({
+                msg: 'Organization Save Success!',
+                organization: {
+                    ...newOrganization._doc,
+                }
+            })
         } catch (err) {
-            return res.status(500).json({msg: err.message})
+            return res.status(500).json({ msg: err.message })
         }
     },
     getOrganization: async (req, res) => {
         try {
-            const user = await Organizations.findById(req.params.id).select('-password')
-            .populate("followers following", "-password")
-            if(!user) return res.status(400).json({msg: "User does not exist."})
+            const user = await Organizations.findById(req.params.id)
             
             res.json({user})
         } catch (err) {
             return res.status(500).json({msg: err.message})
         }
     },
-    updateOrganization: async (req, res) => {
+    deleteOrganization: async (req, res) => {
         try {
-            const { avatar, fullname, mobile, address, story, website, gender } = req.body
-            if(!fullname) return res.status(400).json({msg: "Please add your full name."})
+            const organization = await Organizations.findOneAndDelete({ _id: req.params.id  })
 
-            await Organizations.findOneAndUpdate({_id: req.user._id}, {
-                avatar, fullname, mobile, address, story, website, gender
+
+            res.json({
+                msg: 'Deleted Organization!',
+                newOrganization: {
+                    ...organization,
+                    user: req.user
+                }
             })
 
-            res.json({msg: "Update Success!"})
-
         } catch (err) {
-            return res.status(500).json({msg: err.message})
+            return res.status(500).json({ msg: err.message })
         }
     },
-    suggestionsOrganization: async (req, res) => {
+    updateOrganization: async (req, res) => {
         try {
-            const newArr = [...req.user.following, req.user._id]
+            const { fullname, email, mobile, address, website, images } = req.body
 
-            const num  = req.query.num || 10
-
-            const users = await Organizations.aggregate([
-                { $match: { _id: { $nin: newArr } } },
-                { $sample: { size: Number(num) } },
-                { $lookup: { from: 'users', localField: 'followers', foreignField: '_id', as: 'followers' } },
-                { $lookup: { from: 'users', localField: 'following', foreignField: '_id', as: 'following' } },
-            ]).project("-password")
-
-            return res.json({
-                users,
-                result: users.length
+            const organization = await Organizations.findOneAndUpdate({ _id: req.params.id }, {
+                fullname, email, mobile, address, website, images
             })
 
+            res.json({
+                msg: "Updated Organization!",
+                newOrganization: {
+                    ...organization._doc,
+                    fullname, email, mobile, address, website, images
+                }
+            })
         } catch (err) {
-            return res.status(500).json({msg: err.message})
+            return res.status(500).json({ msg: err.message })
         }
     },
 }
