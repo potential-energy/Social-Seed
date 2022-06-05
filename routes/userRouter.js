@@ -11,6 +11,7 @@ router.patch('/user', auth, userCtrl.updateUser)
 
 router.patch('/user/:id/follow', auth, userCtrl.follow)
 router.patch('/user/:id/unfollow', auth, userCtrl.unfollow)
+router.patch('/user/:id/add_experience', auth, userCtrl.addExperience)
 
 router.get('/suggestionsUser', auth, userCtrl.suggestionsUser)
 

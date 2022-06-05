@@ -1,4 +1,5 @@
 const Users = require('../models/userModel')
+const Experiences = require('../models/experienceModel')
 
 const userCtrl = {
     searchUser: async (req, res) => {
@@ -69,6 +70,27 @@ const userCtrl = {
 
             res.json({newUser})
 
+        } catch (err) {
+            return res.status(500).json({msg: err.message})
+        }   
+    },
+    addExperience: async (req, res) => {
+        const { organization_id, title , start_date, end_date, is_still } = req.body
+
+        try {
+            const newExperience = await Users.findOneAndUpdate({ _id: req.params.id }, {
+                $push: {followers: req.user._id}
+            }, {new: true}).populate("followers following", "-password")
+
+            await Users.findOneAndUpdate({_id: req.user._id}, {
+                $pull: {following: req.params.id}
+            }, {new: true})
+
+            res.json({newUser})
+
+            await Users.findOneAndUpdate({ _id: req.user._id }, {
+                $push: { experiences: req.params.id }
+            }, { new: true })
         } catch (err) {
             return res.status(500).json({msg: err.message})
         }

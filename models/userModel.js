@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const experienceModel = require('./experienceModel')
 
 
 const userSchema = new mongoose.Schema({
@@ -43,7 +44,8 @@ const userSchema = new mongoose.Schema({
     following: [{type: mongoose.Types.ObjectId, ref: 'user'}],
     saved: [{ type: mongoose.Types.ObjectId, ref: 'user' }],
 
-    organizations: [{ type: mongoose.Types.ObjectId, ref: 'organization' }]
+    organizations: [{ type: mongoose.Types.ObjectId, ref: 'organization' }],
+    experiences: [{ type: String, type: String}]
 }, {
     timestamps: true
 })
